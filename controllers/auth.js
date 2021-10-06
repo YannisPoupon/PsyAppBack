@@ -2,24 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
-
-
-exports.signup = (req, res, next) => {
-    bcrypt.hash(req.body.user.password, 10)
-    .then(hash => {
-        const user = new User({
-            email: req.body.user.email,
-            password: hash,
-            firstName: req.body.user.firstName,
-            lastName: req.body.user.lastName,
-            address: req.body.user.address
-        });
-        user.save()
-        .then(() => res.status(201).json({ message : 'Utilisateur crée !' }))
-        .catch(error => res.status(400).json({ error }));
-    })
-    .catch(error => res.status(500).json({ error }));
-};
+const Psy = require('../models/psy');
 
 exports.login = (req, res, next) => {
   User.findOne({ email: req.body.email })
@@ -34,6 +17,7 @@ exports.login = (req, res, next) => {
           }
           res.status(200).json({
             userId: user._id,
+            userType: 'user',
             token: jwt.sign(
               { userId: user._id },
               'YOU_SHALL_NOT_PASS',
@@ -45,3 +29,29 @@ exports.login = (req, res, next) => {
     })
     .catch(error => res.status(500).json({ error }));
 };
+
+exports.loginPsy = (req, res, next) => {
+  Psy.findOne({ email: req.body.email })
+    .then(psy => {
+      if (!psy) {
+        return res.status(401).json({ error: 'Utilisateur non trouvé !' });
+      }
+      bcrypt.compare(req.body.password, psy.password)
+        .then(valid => {
+          if (!valid) {
+            return res.status(401).json({ error: 'Mot de passe incorrect !' });
+          }
+          res.status(200).json({
+            psyId: psy._id,
+            userType: 'psy',
+            token: jwt.sign(
+              { psyId: psy._id },
+              'YOU_SHALL_NOT_PASS',
+              { expiresIn: '24h' }
+            )
+          });
+        })
+        .catch(error => res.status(500).json({ error }));
+    })
+    .catch(error => res.status(500).json({ error }));
+}

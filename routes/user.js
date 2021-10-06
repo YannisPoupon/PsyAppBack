@@ -2,14 +2,13 @@ const express = require('express');
 const router = express.Router();
 
 const auth = require('../middleware/auth');
-const multer = require('../middleware/multer-config');
 
-const stuffCtrl = require('../controllers/user.js');
+const userCtrl = require('../controllers/user');
 
-router.get('/', auth, stuffCtrl.getAllUser);
-router.post('/', auth, multer, stuffCtrl.createUser);
-router.get('/:id', auth, stuffCtrl.getOneUser);
-router.put('/:id', auth, multer, stuffCtrl.modifyUser);
-router.delete('/:id', auth, stuffCtrl.deleteUser);
+router.get('/', auth, userCtrl.getAllUser);
+router.post('/', userCtrl.createUser);
+router.get('/:id', auth, userCtrl.getOneUser);
+router.put('/:id', auth, userCtrl.modifyUser);
+router.delete('/:id', auth, userCtrl.deleteUser);
 
 module.exports = router;
