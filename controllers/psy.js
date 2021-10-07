@@ -3,10 +3,8 @@ const Psy = require('../models/psy')
 const bcrypt = require('bcrypt');
 
 exports.createPsy = (req, res, next) => {
-  console.log(req.body);
   bcrypt.hash(req.body.psy.password, 10)
     .then(hash => {
-      console.log(req.body)
       const psy = new Psy({
         userType: req.body.psy.userType,
         email: req.body.psy.email,
